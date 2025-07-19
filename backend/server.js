@@ -25,7 +25,7 @@ import styleSettingsRoutes from './routes/styleSettings.js';
 import db from './db.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3100;
 
 app.use(cors());
 app.use(bodyParser.json());
