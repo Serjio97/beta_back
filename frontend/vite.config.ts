@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? '/Betawaves_cms/' : '/',
   server: {
     host: "::",
-    port: 8080,
+    port: 2100,
   },
   plugins: [
     react(),
