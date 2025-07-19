@@ -1,5 +1,5 @@
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2100/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://betawaves_back:3100/api';
 
 export class APIError extends Error {
   constructor(message: string, public status?: number) {

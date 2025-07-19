@@ -7,7 +7,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 2000;
+// Explicitly set port to 2100 to avoid conflicts
+const PORT = 2100;
+
+// Debug: Log the port being used
+console.log(`Starting server on port: ${PORT}`);
+console.log(`Environment PORT variable: ${process.env.PORT}`);
 
 // Enable CORS
 app.use(cors());
