@@ -7,8 +7,8 @@ const router = express.Router();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'aymen.sarraj@betawaves.io',      // ✅ your default sender email
-    pass: 'dkwc tcqj ijmo hydi',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
+    user: 'khammaramin@gmail.com',      // ✅ your default sender email
+    pass: 'bket hmtc sbjs ppbz',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
   }
 });
 
@@ -39,6 +39,12 @@ router.get('/:id', async (req, res) => {
 
 import { v4 as uuidv4 } from 'uuid'; // install with: npm i uuid
 
+// Helper to convert to MySQL DATETIME format
+function toMySQLDatetime(date) {
+  const d = new Date(date);
+  return d.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 // POST /api/contact-messages
 router.post('/', async (req, res) => {
   try {
@@ -47,27 +53,31 @@ router.post('/', async (req, res) => {
     const { name, email, subject, message, timestamp, status } = req.body;
     const id = uuidv4();
 
-   await db.execute(
-  'INSERT INTO contact_messages (id, name, email, subject, message, status, timestamp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-  [
-    id,
-    name,
-    email,
-    subject,
-    message,
-    status || 'unread',
-    timestamp || new Date(),
-    new Date(), // created_at
-    new Date(), // updated_at
-  ]
+    const now = new Date();
+    const mysqlTimestamp = toMySQLDatetime(timestamp || now);
+    const mysqlCreatedAt = toMySQLDatetime(now);
+    const mysqlUpdatedAt = toMySQLDatetime(now);
 
-);
+    await db.execute(
+      'INSERT INTO contact_messages (id, name, email, subject, message, status, timestamp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        id,
+        name,
+        email,
+        subject,
+        message,
+        status || 'unread',
+        mysqlTimestamp,
+        mysqlCreatedAt,
+        mysqlUpdatedAt,
+      ]
+    );
 
 
 // Send email to default recipient
     const mailOptions = {
-      from: 'aymen.sarraj@betawaves.io',            // sender
-      to: 'all@betawaves.io',                // 📩 recipient
+      from: 'khammaramin@gmail.com',            // sender
+      to: 'gamerwaymin@gmail.com',                // 📩 recipient
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
