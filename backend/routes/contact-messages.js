@@ -101,15 +101,9 @@ router.post('/', async (req, res) => {
 
 const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  if (!companyEmailPattern.test(formData.email)) {
-    toast({
-      title: 'Invalid Email',
-      description: 'Please use your company email address (no Gmail, Yahoo, etc.)',
-      variant: 'destructive',
-    });
-    setIsSubmitting(false); // stop loading
-    return;
-  }
+if (!companyEmailPattern.test(email)) {
+  return res.status(400).json({ error: 'Please use your company email address (no Gmail, Yahoo, Outlook, etc.)' });
+}
 
   try {
     const response = await fetch('https://betawaves-back.4bzwio.easypanel.host/api/contact-messages', {
