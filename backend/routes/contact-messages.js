@@ -89,12 +89,6 @@ router.post('/', async (req, res) => {
       `
     };
 
-    const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-if (!companyEmailPattern.test(email)) {
-  return res.status(400).json({ error: 'Please use your company email address.' });
-}
-
     await transporter.sendMail(mailOptions);
 
     const [newMessage] = await db.execute('SELECT * FROM contact_messages WHERE id = ?', [id]);
@@ -104,6 +98,60 @@ if (!companyEmailPattern.test(email)) {
     res.status(500).json({ error: 'Failed to create contact message' });
   }
 });
+
+const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!companyEmailPattern.test(formData.email)) {
+    toast({
+      title: 'Invalid Email',
+      description: 'Please use your company email address (no Gmail, Yahoo, etc.)',
+      variant: 'destructive',
+    });
+    setIsSubmitting(false); // stop loading
+    return;
+  }
+
+  try {
+    const response = await fetch('https://betawaves-back.4bzwio.easypanel.host/api/contact-messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.program || formData.company || 'General Inquiry',
+        message: formData.message,
+        timestamp: new Date(),
+        status: 'unread'
+      }),
+    });
+
+    if (!response.ok) throw new Error('Failed to send message');
+
+    toast({
+      title: "Message sent successfully!",
+      description: "We'll get back to you within 24 hours.",
+    });
+
+    setFormData({
+      name: '',
+      email: '',
+      company: '',
+      program: '',
+      message: ''
+    });
+  } catch (error) {
+    console.error('Submission error:', error);
+    toast({
+      title: 'Submission failed',
+      description: 'There was a problem sending your message.',
+      variant: 'destructive',
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
 
 // PUT /api/contact-messages/:id
