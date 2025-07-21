@@ -1,18 +1,26 @@
 import express from 'express';
 import db from '../db.js';
 import nodemailer from 'nodemailer';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
+// Setup transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'aymen.sarraj@betawaves.io',      // ✅ your default sender email
-    pass: 'dkwc tcqj ijmo hydi',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
+    user: 'aymen.sarraj@betawaves.io',
+    pass: 'dkwc tcqj ijmo hydi', // Use Gmail App Password
   }
 });
 
-// GET /api/contact-messages
+// Helper: Convert JS Date to MySQL DATETIME format
+function toMySQLDatetime(date) {
+  const d = new Date(date);
+  return d.toISOString().slice(0, 19).replace('T', ' ');
+}
+
+// --- GET all messages ---
 router.get('/', async (req, res) => {
   try {
     const [messages] = await db.execute('SELECT * FROM contact_messages ORDER BY timestamp DESC');
@@ -23,7 +31,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/contact-messages/:id
+// --- GET message by ID ---
 router.get('/:id', async (req, res) => {
   try {
     const [messages] = await db.execute('SELECT * FROM contact_messages WHERE id = ?', [req.params.id]);
@@ -37,27 +45,27 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-import { v4 as uuidv4 } from 'uuid'; // install with: npm i uuid
-
-// Helper to convert to MySQL DATETIME format
-function toMySQLDatetime(date) {
-  const d = new Date(date);
-  return d.toISOString().slice(0, 19).replace('T', ' ');
-}
-
-// POST /api/contact-messages
+// --- POST new message ---
 router.post('/', async (req, res) => {
   try {
     console.log('[POST] Contact Message Payload:', req.body);
 
     const { name, email, subject, message, timestamp, status } = req.body;
-    const id = uuidv4();
 
+    // Validate email pattern
+    const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!companyEmailPattern.test(email)) {
+      return res.status(400).json({ error: 'Please use your company email address.' });
+    }
+
+    // Prepare timestamps
+    const id = uuidv4();
     const now = new Date();
     const mysqlTimestamp = toMySQLDatetime(timestamp || now);
     const mysqlCreatedAt = toMySQLDatetime(now);
     const mysqlUpdatedAt = toMySQLDatetime(now);
 
+    // Insert into DB
     await db.execute(
       'INSERT INTO contact_messages (id, name, email, subject, message, status, timestamp, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
@@ -73,11 +81,10 @@ router.post('/', async (req, res) => {
       ]
     );
 
-
-// Send email to default recipient
+    // Send email
     const mailOptions = {
-      from: 'aymen.sarraj@betawaves.io',            // sender
-      to: 'aymen.sarraj@betawaves.io',                // 📩 recipient
+      from: 'aymen.sarraj@betawaves.io',
+      to: 'aymen.sarraj@betawaves.io',
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
@@ -91,6 +98,7 @@ router.post('/', async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
+    // Return newly created message
     const [newMessage] = await db.execute('SELECT * FROM contact_messages WHERE id = ?', [id]);
     res.status(201).json(newMessage[0]);
   } catch (error) {
@@ -99,65 +107,16 @@ router.post('/', async (req, res) => {
   }
 });
 
-const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-if (!companyEmailPattern.test(email)) {
-  return res.status(400).json({ error: 'Please use your company email address (no Gmail, Yahoo, Outlook, etc.)' });
-}
-
-  try {
-    const response = await fetch('https://betawaves-back.4bzwio.easypanel.host/api/contact-messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.program || formData.company || 'General Inquiry',
-        message: formData.message,
-        timestamp: new Date(),
-        status: 'unread'
-      }),
-    });
-
-    if (!response.ok) throw new Error('Failed to send message');
-
-    toast({
-      title: "Message sent successfully!",
-      description: "We'll get back to you within 24 hours.",
-    });
-
-    setFormData({
-      name: '',
-      email: '',
-      company: '',
-      program: '',
-      message: ''
-    });
-  } catch (error) {
-    console.error('Submission error:', error);
-    toast({
-      title: 'Submission failed',
-      description: 'There was a problem sending your message.',
-      variant: 'destructive',
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-
-// PUT /api/contact-messages/:id
+// --- PUT (update) message ---
 router.put('/:id', async (req, res) => {
   try {
     const { name, email, subject, message, timestamp, status } = req.body;
-    
+
     await db.execute(
       'UPDATE contact_messages SET name = ?, email = ?, subject = ?, message = ?, timestamp = ?, status = ? WHERE id = ?',
       [name, email, subject, message, timestamp, status, req.params.id]
     );
-    
+
     const [updatedMessage] = await db.execute('SELECT * FROM contact_messages WHERE id = ?', [req.params.id]);
     res.json(updatedMessage[0]);
   } catch (error) {
@@ -166,7 +125,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/contact-messages/:id
+// --- DELETE message ---
 router.delete('/:id', async (req, res) => {
   try {
     const [result] = await db.execute('DELETE FROM contact_messages WHERE id = ?', [req.params.id]);
