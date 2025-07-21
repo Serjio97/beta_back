@@ -77,7 +77,7 @@ router.post('/', async (req, res) => {
 // Send email to default recipient
     const mailOptions = {
       from: 'aymen.sarraj@betawaves.io',            // sender
-      to: 'all@betawaves.io',                // 📩 recipient
+      to: 'aymen.sarraj@betawaves.io',                // 📩 recipient
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
