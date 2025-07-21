@@ -123,7 +123,17 @@ router.put('/:id', async (req, res) => {
     console.error('Error updating contact message:', error);
     res.status(500).json({ error: 'Failed to update contact message' });
   }
+
+  if (subject !== 'Newsletter') {
+  const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!companyEmailPattern.test(email)) {
+    return res.status(400).json({ error: 'Please use your company email address.' });
+  }
+}
+
 });
+
+
 
 // --- DELETE message ---
 router.delete('/:id', async (req, res) => {
