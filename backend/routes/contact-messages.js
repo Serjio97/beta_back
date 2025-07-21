@@ -5,9 +5,7 @@ import nodemailer from 'nodemailer';
 const router = express.Router();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465, // or 587 for TLS
-  secure: true, // true for port 465, false for 587
+  service: 'gmail',
   auth: {
     user: 'aymen.sarraj@betawaves.io',      // ✅ your default sender email
     pass: 'dkwc tcqj ijmo hydi',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
