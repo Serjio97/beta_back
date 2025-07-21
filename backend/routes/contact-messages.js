@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
-onst transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465, // or 587 for TLS
   secure: true, // true for port 465, false for 587
