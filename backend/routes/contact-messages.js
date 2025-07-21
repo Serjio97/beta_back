@@ -89,6 +89,12 @@ router.post('/', async (req, res) => {
       `
     };
 
+    const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+if (!companyEmailPattern.test(email)) {
+  return res.status(400).json({ error: 'Please use your company email address.' });
+}
+
     await transporter.sendMail(mailOptions);
 
     const [newMessage] = await db.execute('SELECT * FROM contact_messages WHERE id = ?', [id]);
