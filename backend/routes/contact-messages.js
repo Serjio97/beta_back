@@ -7,8 +7,8 @@ const router = express.Router();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'khammaramin@gmail.com',      // ✅ your default sender email
-    pass: 'bket hmtc sbjs ppbz',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
+    user: 'aymen.sarraj@betawaves.io',      // ✅ your default sender email
+    pass: 'dkwc tcqj ijmo hydi',            // ⚠️ NOT your Gmail password — use App Password or real SMTP password
   }
 });
 
@@ -76,8 +76,8 @@ router.post('/', async (req, res) => {
 
 // Send email to default recipient
     const mailOptions = {
-      from: 'khammaramin@gmail.com',            // sender
-      to: 'gamerwaymin@gmail.com',                // 📩 recipient
+      from: 'aymen.sarraj@betawaves.io',            // sender
+      to: 'all@betawaves.io',                // 📩 recipient
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
