@@ -30,7 +30,7 @@ import styleSettingsRoutes from './routes/styleSettings.js';
 import db from './db.js';
 
 const app = express();
-const PORT = 3100;
+const PORT = 2100;
 
 app.use(cors());
 app.use(bodyParser.json());
