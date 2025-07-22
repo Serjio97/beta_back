@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Route imports
+// ✅ Route imports
 import servicesRoutes from './routes/services.js';
 import productsRoutes from './routes/products.js';
 import fundsRoutes from './routes/funds.js';
@@ -34,13 +34,13 @@ const PORT = 3100;
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Serve uploaded files statically
+// ✅ Serve static uploads directory
 app.use(
   '/uploads',
   express.static(path.resolve(__dirname, '../frontend/public/uploads'))
 );
 
-// ✅ API routes
+// ✅ Mount API routes
 app.use('/api/services', servicesRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/funds', fundsRoutes);
@@ -59,7 +59,7 @@ app.use('/api/collaborators', collaboratorsRoutes);
 app.use('/api/running-text', runningTextRoutes);
 app.use('/api/style-settings', styleSettingsRoutes);
 
-// ✅ Health check
+// ✅ Health check endpoint
 app.get('/', (req, res) => {
   res.send('CMS API is running 🚀');
 });
