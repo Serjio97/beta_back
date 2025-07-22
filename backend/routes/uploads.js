@@ -33,7 +33,7 @@ if (!fs.existsSync(blogDir)) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../beta_back/frontend/public/uploads/team');
+    cb(null, 'beta_back/frontend/public/uploads/team');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 });
 const caseStudyStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../beta_back/frontend/public/uploads/case-studies');
+    cb(null, 'beta_back/frontend/public/uploads/case-studies');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -53,7 +53,7 @@ const caseStudyStorage = multer.diskStorage({
 });
 const styleHeroStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../beta_back/frontend/public/uploads/style');
+    cb(null, 'beta_back/frontend/public/uploads/style');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -63,7 +63,7 @@ const styleHeroStorage = multer.diskStorage({
 });
 const PopupoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../beta_back/frontend/public/uploads/popup');
+    cb(null, 'beta_back/frontend/public/uploads/popup');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -73,7 +73,7 @@ const PopupoStorage = multer.diskStorage({
 });
 const blogImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../beta_back/frontend/public/uploads/blog');
+    cb(null, 'beta_back/frontend/public/uploads/blog');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
