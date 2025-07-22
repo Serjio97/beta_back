@@ -7,9 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const router = express.Router();
-
-// Create directory if not exists
+console.log('__dirname:', __dirname);
 const teamDir = path.join(__dirname, '../../frontend/public/uploads/team');
 console.log('teamDir:', teamDir);
 if (!fs.existsSync(teamDir)) {
