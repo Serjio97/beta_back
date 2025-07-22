@@ -9,18 +9,20 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// ✅ Safely resolve project root and upload base directory
-const projectRoot = path.resolve(__dirname, '..'); // goes to /workspace
+// ✅ Project root and upload base path
+const projectRoot = path.resolve(__dirname, '..');
 const uploadsBaseDir = path.join(projectRoot, 'frontend', 'public', 'uploads');
 
-const teamDir = path.join(uploadsBaseDir, 'team');
-const caseStudyDir = path.join(uploadsBaseDir, 'case-studies');
-const styleDir = path.join(uploadsBaseDir, 'style');
-const popupDir = path.join(uploadsBaseDir, 'popup');
-const blogDir = path.join(uploadsBaseDir, 'blog');
+const uploadDirs = {
+  team: path.join(uploadsBaseDir, 'team'),
+  caseStudies: path.join(uploadsBaseDir, 'case-studies'),
+  style: path.join(uploadsBaseDir, 'style'),
+  popup: path.join(uploadsBaseDir, 'popup'),
+  blog: path.join(uploadsBaseDir, 'blog'),
+};
 
-// ✅ Create directories safely
-[teamDir, caseStudyDir, styleDir, popupDir, blogDir].forEach((dir) => {
+// ✅ Ensure directories exist
+Object.values(uploadDirs).forEach((dir) => {
   try {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -31,47 +33,51 @@ const blogDir = path.join(uploadsBaseDir, 'blog');
   }
 });
 
-// ✅ Create reusable multer storage function
-const createStorage = (destinationDir) =>
-  multer.diskStorage({
-    destination: (req, file, cb) => cb(null, destinationDir),
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      const ext = path.extname(file.originalname);
-      cb(null, uniqueSuffix + ext);
-    }
+// ✅ Accept only images
+const imageFileFilter = (req, file, cb) => {
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedExtensions.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed.'));
+  }
+};
+
+// ✅ Create multer upload instance
+const createUpload = (folderPath) =>
+  multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => cb(null, folderPath),
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, uniqueSuffix + ext);
+      }
+    }),
+    fileFilter: imageFileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   });
 
-const upload = multer({ storage: createStorage(teamDir) });
-const caseStudyUpload = multer({ storage: createStorage(caseStudyDir) });
-const styleUpload = multer({ storage: createStorage(styleDir) });
-const popupUpload = multer({ storage: createStorage(popupDir) });
-const blogUpload = multer({ storage: createStorage(blogDir) });
+// ✅ Safe route handler wrapper
+const handleUpload = (uploadMiddleware, folderName) =>
+  (req, res) => {
+    uploadMiddleware.single('image')(req, res, (err) => {
+      if (err) {
+        console.error(`❌ Upload failed for /${folderName}:`, err.message);
+        return res.status(400).json({ error: err.message });
+      }
+      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-// ✅ Upload endpoints
-router.post('/team-image', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/team/${req.file.filename}` });
-});
+      res.status(200).json({ url: `/uploads/${folderName}/${req.file.filename}` });
+    });
+  };
 
-router.post('/case-study-image', caseStudyUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/case-studies/${req.file.filename}` });
-});
-
-router.post('/style-hero-image', styleUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/style/${req.file.filename}` });
-});
-
-router.post('/popup-image', popupUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/popup/${req.file.filename}` });
-});
-
-router.post('/blog-image', blogUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/blog/${req.file.filename}` });
-});
+// ✅ Routes
+router.post('/team-image', handleUpload(createUpload(uploadDirs.team), 'team'));
+router.post('/case-study-image', handleUpload(createUpload(uploadDirs.caseStudies), 'case-studies'));
+router.post('/style-hero-image', handleUpload(createUpload(uploadDirs.style), 'style'));
+router.post('/popup-image', handleUpload(createUpload(uploadDirs.popup), 'popup'));
+router.post('/blog-image', handleUpload(createUpload(uploadDirs.blog), 'blog'));
 
 export default router;
