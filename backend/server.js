@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { fileURLToPath } from 'url';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +19,6 @@ import resourcesRoutes from './routes/resources.js';
 import programApplicationsRoutes from './routes/program-applications.js';
 import consultingRoutes from './routes/consulting.js';
 
-import uploadsRoutes from './routes/uploads.js';
 import adminRoutes from './routes/admins.js';
 import popupRoutes from './routes/popup.js';
 
@@ -30,7 +29,7 @@ import styleSettingsRoutes from './routes/styleSettings.js';
 import db from './db.js';
 
 const app = express();
-const PORT = 2100;
+const PORT = 3100;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -50,8 +49,6 @@ app.use('/api/consulting', consultingRoutes);
 
 app.use('/api/popup', popupRoutes);
 
-app.use('/api/uploads', uploadsRoutes); // For handling uploads
-app.use('/uploads', express.static('public/uploads')); // Serve uploaded files
 app.use('/api/admins', adminRoutes);  // For admin login
 app.use('/api/collaborators', collaboratorsRoutes);
 app.use('/api/running-text', runningTextRoutes);
