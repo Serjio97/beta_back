@@ -1,138 +1,69 @@
 import express from 'express';
-import multer from 'multer';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 import path from 'path';
-import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Create directory if not exists
-const teamDir = path.join(__dirname, '../../frontend/public/uploads/team');
-console.log('teamDir:', teamDir);
-if (!fs.existsSync(teamDir)) {
-  fs.mkdirSync(teamDir, { recursive: true });
-}
+import servicesRoutes from './routes/services.js';
+import productsRoutes from './routes/products.js';
+import fundsRoutes from './routes/funds.js';
+import caseStudiesRoutes from './routes/case-studies.js';
+import blogPostsRoutes from './routes/blog-posts.js';
+import eventsRoutes from './routes/events.js';
+import contactMessagesRoutes from './routes/contact-messages.js';
+import teamRoutes from './routes/team-members.js';
+import resourcesRoutes from './routes/resources.js';
+import programApplicationsRoutes from './routes/program-applications.js';
+import consultingRoutes from './routes/consulting.js';
 
-const caseStudyDir = path.join(__dirname, '../../frontend/public/uploads/case-studies');
-console.log('caseStudyDir:', caseStudyDir);
-if (!fs.existsSync(caseStudyDir)) {
-  fs.mkdirSync(caseStudyDir, { recursive: true });
-}
+import uploadsRoutes from './routes/uploads.js';
+import adminRoutes from './routes/admins.js';
+import popupRoutes from './routes/popup.js';
 
-const styleDir = path.join(__dirname, '../../frontend/public/uploads/style');
-console.log('styleDir:', styleDir);
-if (!fs.existsSync(styleDir)) {
-  fs.mkdirSync(styleDir, { recursive: true });
-}
+import collaboratorsRoutes from './routes/collaborators.js';
+import runningTextRoutes from './routes/runningText.js';
+import styleSettingsRoutes from './routes/styleSettings.js';
 
-const popupDir = path.join(__dirname, '../../frontend/public/uploads/popup');
-console.log('popupDir:', popupDir);
-if (!fs.existsSync(popupDir)) {
-  fs.mkdirSync(popupDir, { recursive: true });
-}
+import db from './db.js';
 
-const blogDir = path.join(__dirname, '../../frontend/public/uploads/blog');
-console.log('blogDir:', blogDir);
-if (!fs.existsSync(blogDir)) {
-  fs.mkdirSync(blogDir, { recursive: true });
-}
+const app = express();
+const PORT = 3100;
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, teamDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  }
-});
-const caseStudyStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, caseStudyDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  }
-});
-const styleHeroStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, styleDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  }
-});
-const PopupoStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, popupDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  }
-});
-const blogImageStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, blogDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  }
+app.use(cors());
+app.use(bodyParser.json());
+
+// API prefix for consistency with frontend `VITE_API_URL + /api/...`
+app.use('/api/services', servicesRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/funds', fundsRoutes);
+app.use('/api/case-studies', caseStudiesRoutes);
+app.use('/api/blog-posts', blogPostsRoutes);
+app.use('/api/events', eventsRoutes);
+app.use('/api/contact-messages', contactMessagesRoutes);
+app.use('/api/team-members', teamRoutes);
+app.use('/api/resources', resourcesRoutes);
+app.use('/api/program-applications', programApplicationsRoutes);
+app.use('/api/consulting', consultingRoutes);
+
+app.use('/api/popup', popupRoutes);
+
+app.use('/api/uploads', uploadsRoutes); // For handling uploads
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../../frontend/public/uploads'))
+); // Serve uploaded files
+app.use('/api/admins', adminRoutes);  // For admin login
+app.use('/api/collaborators', collaboratorsRoutes);
+app.use('/api/running-text', runningTextRoutes);
+app.use('/api/style-settings', styleSettingsRoutes);
+
+app.get('/', (req, res) => {
+  res.send('CMS API is running 🚀');
 });
 
-const upload = multer({ storage });
-const caseStudyUpload = multer({ storage: caseStudyStorage });
-const styleUpload = multer({ storage: styleHeroStorage });
-const popupUpload = multer({ storage: PopupoStorage });
-const blogUpload = multer({ storage: blogImageStorage });
-
-// Endpoint: POST /api/uploads/team-image
-router.post('/team-image', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const fileUrl = `/uploads/team/${req.file.filename}`;
-  res.status(200).json({ url: fileUrl });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-// Endpoint: POST /api/uploads/case-study-image
-router.post('/case-study-image', caseStudyUpload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const fileUrl = `/uploads/case-studies/${req.file.filename}`;
-  res.status(200).json({ url: fileUrl });
-});
-// Route for style hero image upload
-router.post('/style-hero-image', styleUpload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const fileUrl = `/uploads/style/${req.file.filename}`;
-  res.status(200).json({ url: fileUrl });
-});
-
-// ✅ Popup
-router.post('/popup-image', popupUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/popup/${req.file.filename}` });
-});
-
-router.post('/blog-image', blogUpload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(200).json({ url: `/uploads/blog/${req.file.filename}` });
-});
-
-
-
-export default router;
