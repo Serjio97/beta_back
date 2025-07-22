@@ -11,29 +11,29 @@ if (!fs.existsSync(teamDir)) {
   fs.mkdirSync(teamDir, { recursive: true });
 }
 
-const caseStudyDir = 'public/uploads/case-studies';
+const caseStudyDir = path.join(__dirname, '../../frontend/public/uploads/case-studies');
 if (!fs.existsSync(caseStudyDir)) {
   fs.mkdirSync(caseStudyDir, { recursive: true });
 }
 
-const styleDir = 'public/uploads/style';
+const styleDir = path.join(__dirname, '../../frontend/public/uploads/style');
 if (!fs.existsSync(styleDir)) {
   fs.mkdirSync(styleDir, { recursive: true });
 }
 
-const popupDir = 'public/uploads/popup';
+const popupDir = path.join(__dirname, '../../frontend/public/uploads/popup');
 if (!fs.existsSync(popupDir)) {
   fs.mkdirSync(popupDir, { recursive: true });
 }
 
-const blogDir = 'public/uploads/blog';
+const blogDir = path.join(__dirname, '../../frontend/public/uploads/blog');
 if (!fs.existsSync(blogDir)) {
   fs.mkdirSync(blogDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../frontend/public/uploads/team');
+    cb(null, teamDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 });
 const caseStudyStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/case-studies');
+    cb(null, caseStudyDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -53,7 +53,7 @@ const caseStudyStorage = multer.diskStorage({
 });
 const styleHeroStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/style');
+    cb(null, styleDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -63,7 +63,7 @@ const styleHeroStorage = multer.diskStorage({
 });
 const PopupoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/popup');
+    cb(null, popupDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -73,7 +73,7 @@ const PopupoStorage = multer.diskStorage({
 });
 const blogImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/blog');
+    cb(null, blogDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
