@@ -6,27 +6,27 @@ import fs from 'fs';
 const router = express.Router();
 
 // Create directory if not exists
-const teamDir = path.join(__dirname, '../../frontend/public/uploads/team');
+const teamDir = path.join(_dirname, '../../frontend/public/uploads/team');
 if (!fs.existsSync(teamDir)) {
   fs.mkdirSync(teamDir, { recursive: true });
 }
 
-const caseStudyDir = path.join(__dirname, '../../frontend/public/uploads/case-studies');
+const caseStudyDir = path.join(_dirname, '../../frontend/public/uploads/case-studies');
 if (!fs.existsSync(caseStudyDir)) {
   fs.mkdirSync(caseStudyDir, { recursive: true });
 }
 
-const styleDir = path.join(__dirname, '../../frontend/public/uploads/style');
+const styleDir = path.join(_dirname, '../../frontend/public/uploads/style');
 if (!fs.existsSync(styleDir)) {
   fs.mkdirSync(styleDir, { recursive: true });
 }
 
-const popupDir = path.join(__dirname, '../../frontend/public/uploads/popup');
+const popupDir = path.join(_dirname, '../../frontend/public/uploads/popup');
 if (!fs.existsSync(popupDir)) {
   fs.mkdirSync(popupDir, { recursive: true });
 }
 
-const blogDir = path.join(__dirname, '../../frontend/public/uploads/blog');
+const blogDir = path.join(_dirname, '../../frontend/public/uploads/blog');
 if (!fs.existsSync(blogDir)) {
   fs.mkdirSync(blogDir, { recursive: true });
 }
