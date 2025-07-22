@@ -1,26 +1,7 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import db from '../db.js';
 
 const router = express.Router();
-
-// Ensure popup folder exists
-const popupDir = 'public/uploads/popup';
-if (!fs.existsSync(popupDir)) {
-  fs.mkdirSync(popupDir, { recursive: true });
-}
-
-// Storage for popup image
-const storage = multer.diskStorage({
-  destination: popupDir,
-  filename: (req, file, cb) => {
-    const uniqueName = `popup-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
-const upload = multer({ storage });
 
 // ✅ GET /api/popup
 router.get('/', async (req, res) => {
@@ -44,28 +25,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ POST /api/popup/update
-router.post('/update', upload.single('image'), async (req, res) => {
+// ✅ POST /api/popup/update (now JSON-based)
+router.post('/update', async (req, res) => {
   const { title, subject, description, link, isActive, existingImage } = req.body;
-  const imagePath = req.file
-    ? `/uploads/popup/${req.file.filename}`
-    : existingImage || '';
 
   try {
-   await db.execute(
-  `REPLACE INTO popup (id, title, subject, description, link, is_active, image_path)
-   VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  [
-    1,
-    title || null,
-    subject || null,
-    description || null,
-    link || null,
-    isActive === 'true',
-    imagePath || null,
-  ]
-);
-
+    await db.execute(
+      `REPLACE INTO popup (id, title, subject, description, link, is_active, image_path)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        1,
+        title || null,
+        subject || null,
+        description || null,
+        link || null,
+        isActive ? 1 : 0,
+        existingImage || null,
+      ]
+    );
 
     res.json({ message: 'Popup updated successfully' });
   } catch (err) {
