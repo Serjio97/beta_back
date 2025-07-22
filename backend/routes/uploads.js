@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// ✅ Safely resolve the uploads directory within the project
-const projectRoot = path.resolve(__dirname, '..'); // gets to /workspace
+// ✅ Safely resolve project root and upload base directory
+const projectRoot = path.resolve(__dirname, '..'); // goes to /workspace
 const uploadsBaseDir = path.join(projectRoot, 'frontend', 'public', 'uploads');
 
 const teamDir = path.join(uploadsBaseDir, 'team');
@@ -19,19 +19,19 @@ const styleDir = path.join(uploadsBaseDir, 'style');
 const popupDir = path.join(uploadsBaseDir, 'popup');
 const blogDir = path.join(uploadsBaseDir, 'blog');
 
-// ✅ Ensure all required directories exist
+// ✅ Create directories safely
 [teamDir, caseStudyDir, styleDir, popupDir, blogDir].forEach((dir) => {
   try {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
-      console.log(`✅ Created directory: ${dir}`);
+      console.log(`✅ Created: ${dir}`);
     }
   } catch (err) {
-    console.error(`❌ Failed to create directory: ${dir}`, err);
+    console.error(`❌ Failed to create directory ${dir}:`, err);
   }
 });
 
-// ✅ Helper to create multer storage
+// ✅ Create reusable multer storage function
 const createStorage = (destinationDir) =>
   multer.diskStorage({
     destination: (req, file, cb) => cb(null, destinationDir),
@@ -48,7 +48,7 @@ const styleUpload = multer({ storage: createStorage(styleDir) });
 const popupUpload = multer({ storage: createStorage(popupDir) });
 const blogUpload = multer({ storage: createStorage(blogDir) });
 
-// ✅ Upload routes
+// ✅ Upload endpoints
 router.post('/team-image', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   res.status(200).json({ url: `/uploads/team/${req.file.filename}` });
