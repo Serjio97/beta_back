@@ -2,70 +2,132 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// ✅ Use /tmp/uploads as safe writable base
-const uploadsBaseDir = '/tmp/uploads';
-const folders = ['team', 'case-studies', 'style', 'popup', 'blog'];
+// Create directory if not exists
+const teamDir = 'public/uploads/team';
+if (!fs.existsSync(teamDir)) {
+  fs.mkdirSync(teamDir, { recursive: true });
+}
 
-// ✅ Create /tmp/uploads/{folder}
-folders.forEach((folder) => {
-  const dir = path.join(uploadsBaseDir, folder);
-  try {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-      console.log(`✅ Created safe upload dir: ${dir}`);
-    }
-  } catch (err) {
-    console.error(`❌ Error creating upload dir "${folder}":`, err);
+const caseStudyDir = 'public/uploads/case-studies';
+if (!fs.existsSync(caseStudyDir)) {
+  fs.mkdirSync(caseStudyDir, { recursive: true });
+}
+
+const styleDir = 'public/uploads/style';
+if (!fs.existsSync(styleDir)) {
+  fs.mkdirSync(styleDir, { recursive: true });
+}
+
+const popupDir = 'public/uploads/popup';
+if (!fs.existsSync(popupDir)) {
+  fs.mkdirSync(popupDir, { recursive: true });
+}
+
+const blogDir = 'public/uploads/blog';
+if (!fs.existsSync(blogDir)) {
+  fs.mkdirSync(blogDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../frontend/public/uploads/team');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+const caseStudyStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../frontend/public/uploads/case-studies');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+const styleHeroStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../frontend/public/uploads/style');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+const PopupoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../frontend/public/uploads/popup');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+const blogImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../frontend/public/uploads/blog');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
   }
 });
 
-// ✅ Allow only image files
-const imageFileFilter = (req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-  if (allowed.includes(ext)) cb(null, true);
-  else cb(new Error('Only image files are allowed.'));
-};
+const upload = multer({ storage });
+const caseStudyUpload = multer({ storage: caseStudyStorage });
+const styleUpload = multer({ storage: styleHeroStorage });
+const popupUpload = multer({ storage: PopupoStorage });
+const blogUpload = multer({ storage: blogImageStorage });
 
-// ✅ Reusable multer uploader
-const createUpload = (folder) =>
-  multer({
-    storage: multer.diskStorage({
-      destination: (req, file, cb) => cb(null, path.join(uploadsBaseDir, folder)),
-      filename: (req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, unique + ext);
-      }
-    }),
-    fileFilter: imageFileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 }
-  });
+// Endpoint: POST /api/uploads/team-image
+router.post('/team-image', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
 
-// ✅ Wrapper for routes
-const handleUpload = (upload, folder) => (req, res) => {
-  upload.single('image')(req, res, (err) => {
-    if (err) {
-      console.error(`❌ Upload failed for ${folder}:`, err.message);
-      return res.status(400).json({ error: err.message });
-    }
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    res.status(200).json({ url: `/uploads/${folder}/${req.file.filename}` });
-  });
-};
+  const fileUrl = `/uploads/team/${req.file.filename}`;
+  res.status(200).json({ url: fileUrl });
+});
 
-// ✅ Routes
-router.post('/team-image', handleUpload(createUpload('team'), 'team'));
-router.post('/case-study-image', handleUpload(createUpload('case-studies'), 'case-studies'));
-router.post('/style-hero-image', handleUpload(createUpload('style'), 'style'));
-router.post('/popup-image', handleUpload(createUpload('popup'), 'popup'));
-router.post('/blog-image', handleUpload(createUpload('blog'), 'blog'));
+// Endpoint: POST /api/uploads/case-study-image
+router.post('/case-study-image', caseStudyUpload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const fileUrl = `/uploads/case-studies/${req.file.filename}`;
+  res.status(200).json({ url: fileUrl });
+});
+// Route for style hero image upload
+router.post('/style-hero-image', styleUpload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const fileUrl = `/uploads/style/${req.file.filename}`;
+  res.status(200).json({ url: fileUrl });
+});
+
+// ✅ Popup
+router.post('/popup-image', popupUpload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.status(200).json({ url: `/uploads/popup/${req.file.filename}` });
+});
+
+router.post('/blog-image', blogUpload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.status(200).json({ url: `/uploads/blog/${req.file.filename}` });
+});
+
+
 
 export default router;
