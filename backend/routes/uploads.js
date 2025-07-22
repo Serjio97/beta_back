@@ -31,21 +31,19 @@ if (!fs.existsSync(blogDir)) {
   fs.mkdirSync(blogDir, { recursive: true });
 }
 
-
-// Ensure the upload folder exists: public/uploads/team
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/team'); // Save to this folder
+    cb(null, '../frontend/public/uploads/team');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext); // e.g., 16829481249-23901923.jpg
+    cb(null, uniqueSuffix + ext);
   }
 });
 const caseStudyStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/case-studies'); // Save to this folder
+    cb(null, '../frontend/public/uploads/case-studies');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -53,10 +51,9 @@ const caseStudyStorage = multer.diskStorage({
     cb(null, uniqueSuffix + ext);
   }
 });
-
 const styleHeroStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/style');
+    cb(null, '../frontend/public/uploads/style');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -64,10 +61,9 @@ const styleHeroStorage = multer.diskStorage({
     cb(null, uniqueSuffix + ext);
   }
 });
-
 const PopupoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/popup');
+    cb(null, '../frontend/public/uploads/popup');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -75,10 +71,9 @@ const PopupoStorage = multer.diskStorage({
     cb(null, uniqueSuffix + ext);
   }
 });
-
 const blogImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/blog');
+    cb(null, '../frontend/public/uploads/blog');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
