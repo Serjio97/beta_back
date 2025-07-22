@@ -9,8 +9,9 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// ✅ Use absolute path based on project root
-const uploadsBaseDir = path.resolve(__dirname, '../..', 'frontend', 'public', 'uploads');
+// ✅ Safely resolve the uploads directory within the project
+const projectRoot = path.resolve(__dirname, '..'); // gets to /workspace
+const uploadsBaseDir = path.join(projectRoot, 'frontend', 'public', 'uploads');
 
 const teamDir = path.join(uploadsBaseDir, 'team');
 const caseStudyDir = path.join(uploadsBaseDir, 'case-studies');
@@ -18,21 +19,23 @@ const styleDir = path.join(uploadsBaseDir, 'style');
 const popupDir = path.join(uploadsBaseDir, 'popup');
 const blogDir = path.join(uploadsBaseDir, 'blog');
 
-// ✅ Ensure directories exist
+// ✅ Ensure all required directories exist
 [teamDir, caseStudyDir, styleDir, popupDir, blogDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    console.log(`✅ Created directory: ${dir}`);
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`✅ Created directory: ${dir}`);
+    }
+  } catch (err) {
+    console.error(`❌ Failed to create directory: ${dir}`, err);
   }
 });
 
-// ✅ Create multer storages
+// ✅ Helper to create multer storage
 const createStorage = (destinationDir) =>
   multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, destinationDir);
-    },
-    filename: function (req, file, cb) {
+    destination: (req, file, cb) => cb(null, destinationDir),
+    filename: (req, file, cb) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = path.extname(file.originalname);
       cb(null, uniqueSuffix + ext);
@@ -45,7 +48,7 @@ const styleUpload = multer({ storage: createStorage(styleDir) });
 const popupUpload = multer({ storage: createStorage(popupDir) });
 const blogUpload = multer({ storage: createStorage(blogDir) });
 
-// ✅ Upload endpoints
+// ✅ Upload routes
 router.post('/team-image', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   res.status(200).json({ url: `/uploads/team/${req.file.filename}` });
