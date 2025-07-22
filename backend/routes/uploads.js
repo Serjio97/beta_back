@@ -4,39 +4,35 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-// Fix __dirname for ES module scope
+// Fix __dirname for ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Create directory if not exists
-const teamDir = path.join(__dirname, '../../frontend/public/uploads/team');
-if (!fs.existsSync(teamDir)) {
-  fs.mkdirSync(teamDir, { recursive: true });
+// Helper function to safely create directories
+function createDirectory(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`✅ Created directory: ${dirPath}`);
+    }
+  } catch (err) {
+    console.error(`❌ Failed to create directory: ${dirPath}`, err);
+  }
 }
 
-const caseStudyDir = path.join(__dirname, '../../frontend/public/uploads/case-studies');
-if (!fs.existsSync(caseStudyDir)) {
-  fs.mkdirSync(caseStudyDir, { recursive: true });
-}
+// Define upload directories (with correct relative path resolution)
+const teamDir = path.resolve(__dirname, '../../frontend/public/uploads/team');
+const caseStudyDir = path.resolve(__dirname, '../../frontend/public/uploads/case-studies');
+const styleDir = path.resolve(__dirname, '../../frontend/public/uploads/style');
+const popupDir = path.resolve(__dirname, '../../frontend/public/uploads/popup');
+const blogDir = path.resolve(__dirname, '../../frontend/public/uploads/blog');
 
-const styleDir = path.join(__dirname, '../../frontend/public/uploads/style');
-if (!fs.existsSync(styleDir)) {
-  fs.mkdirSync(styleDir, { recursive: true });
-}
+// Ensure directories exist
+[teamDir, caseStudyDir, styleDir, popupDir, blogDir].forEach(createDirectory);
 
-const popupDir = path.join(__dirname, '../../frontend/public/uploads/popup');
-if (!fs.existsSync(popupDir)) {
-  fs.mkdirSync(popupDir, { recursive: true });
-}
-
-const blogDir = path.join(__dirname, '../../frontend/public/uploads/blog');
-if (!fs.existsSync(blogDir)) {
-  fs.mkdirSync(blogDir, { recursive: true });
-}
-
-// Multer storage setups
+// Generic storage creator
 const createStorage = (destinationDir) =>
   multer.diskStorage({
     destination: function (req, file, cb) {
@@ -49,13 +45,14 @@ const createStorage = (destinationDir) =>
     }
   });
 
+// Set up upload handlers
 const upload = multer({ storage: createStorage(teamDir) });
 const caseStudyUpload = multer({ storage: createStorage(caseStudyDir) });
 const styleUpload = multer({ storage: createStorage(styleDir) });
 const popupUpload = multer({ storage: createStorage(popupDir) });
 const blogUpload = multer({ storage: createStorage(blogDir) });
 
-// Upload routes
+// Routes
 router.post('/team-image', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   res.status(200).json({ url: `/uploads/team/${req.file.filename}` });
