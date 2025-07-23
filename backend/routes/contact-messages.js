@@ -1,4 +1,4 @@
-rimport express from 'express';
+import express from 'express';
 import db from '../db.js';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
     // WARNING: Setting 'from' to the user's email may cause deliverability issues (spam, rejection)!
     const mailOptions = {
       from: email, // User's email (not recommended for production)
-      to: 'hello@betawaves.io',
+      to: 'aymen.sarraj@betawaves.io',
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
@@ -103,7 +103,8 @@ router.post('/', async (req, res) => {
         <p><strong>Message:</strong></p>
         <p>${message}</p>
       `,
-      from: email // Set Reply-To to user's email
+      from: email, // User's email (not recommended for production)
+      replyTo: email // Set Reply-To to user's email
     };
 
     await transporter.sendMail(mailOptions);
