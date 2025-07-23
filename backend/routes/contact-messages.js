@@ -95,7 +95,7 @@ router.post('/', async (req, res) => {
       from: 'aymen.sarraj@betawaves.io', // Use your authenticated sender
       to: 'hallo@betawaves.io',
       cc: email, // Add user's email as CC
-      bcc: 44138838@bcc.hubspot.com, 
+      bcc: '44138838@bcc.hubspot.com', // BCC to HubSpot
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
