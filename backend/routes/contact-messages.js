@@ -93,7 +93,8 @@ router.post('/', async (req, res) => {
     // Set 'from' to your domain, 'cc' to user, and 'replyTo' to user for best practice
     const mailOptions = {
       from: 'aymen.sarraj@betawaves.io', // Use your authenticated sender
-      to: 'hello@betawaves.io',
+      to: 'hallo@betawaves.io',
+      cc: email, // Add user's email as CC
       bcc: '44138838@bcc.hubspot.com', // BCC to HubSpot
       subject: `New Contact Message: ${subject}`,
       html: `
