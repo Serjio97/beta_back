@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     // Send email
     const mailOptions = {
       from: 'aymen.sarraj@betawaves.io',
-      to: 'aymen.sarraj@betawaves.io',
+      to: 'hello@betawaves.io',
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
