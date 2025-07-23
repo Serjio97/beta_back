@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     // Send email
     const mailOptions = {
       from: 'aymen.sarraj@betawaves.io',
-      to: 'hello@betawaves.io',
+      to: 'aymen.sarraj@betawaves.io',
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
@@ -101,7 +101,8 @@ router.post('/', async (req, res) => {
         <p><strong>Subject:</strong> ${subject}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
-      `
+      `,
+      replyTo: email // Set Reply-To to user's email
     };
 
     await transporter.sendMail(mailOptions);
