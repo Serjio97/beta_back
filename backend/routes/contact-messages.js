@@ -90,10 +90,11 @@ router.post('/', async (req, res) => {
     );
 
     // Send email
-    // WARNING: Setting 'from' to the user's email may cause deliverability issues (spam, rejection)!
+    // Set 'from' to your domain, 'cc' to user, and 'replyTo' to user for best practice
     const mailOptions = {
-      from: email, // User's email (not recommended for production)
-      to: 'aymen.sarraj@betawaves.io',
+      from: 'aymen.sarraj@betawaves.io', // Use your authenticated sender
+      to: 'hallo@betawaves.io',
+      cc: email, // Add user's email as CC
       subject: `New Contact Message: ${subject}`,
       html: `
         <h3>New Contact Message</h3>
@@ -103,7 +104,6 @@ router.post('/', async (req, res) => {
         <p><strong>Message:</strong></p>
         <p>${message}</p>
       `,
-      from: email, // User's email (not recommended for production)
       replyTo: email // Set Reply-To to user's email
     };
 
