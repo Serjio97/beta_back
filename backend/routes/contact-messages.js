@@ -1,4 +1,4 @@
-import express from 'express';
+rimport express from 'express';
 import db from '../db.js';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
@@ -103,7 +103,7 @@ router.post('/', async (req, res) => {
         <p><strong>Message:</strong></p>
         <p>${message}</p>
       `,
-      replyTo: email // Set Reply-To to user's email
+      from: email // Set Reply-To to user's email
     };
 
     await transporter.sendMail(mailOptions);
