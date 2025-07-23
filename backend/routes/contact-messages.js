@@ -90,8 +90,9 @@ router.post('/', async (req, res) => {
     );
 
     // Send email
+    // WARNING: Setting 'from' to the user's email may cause deliverability issues (spam, rejection)!
     const mailOptions = {
-      from: 'aymen.sarraj@betawaves.io',
+      from: email, // User's email (not recommended for production)
       to: 'aymen.sarraj@betawaves.io',
       subject: `New Contact Message: ${subject}`,
       html: `
