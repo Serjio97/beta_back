@@ -64,6 +64,9 @@ router.post('/', async (req, res) => {
     if (!captchaData.success) {
       return res.status(400).json({ error: 'reCAPTCHA verification failed.' });
     }
+    if (typeof captchaData.score === 'number' && captchaData.score < 0.7) {
+      return res.status(400).json({ error: 'reCAPTCHA score too low. Submission rejected as potential spam.' });
+    }
 
     if (subject !== 'Newsletter') {
       const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
