@@ -2,6 +2,7 @@ import express from 'express';
 import db from '../db.js';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -50,7 +51,19 @@ router.post('/', async (req, res) => {
   try {
     console.log('[POST] Contact Message Payload:', req.body);
 
-    const { name, email, subject, message, timestamp, status } = req.body;
+    const { name, email, subject, message, timestamp, status, recaptchaToken } = req.body;
+
+    // Verify reCAPTCHA
+    if (!recaptchaToken) {
+      return res.status(400).json({ error: 'Missing reCAPTCHA token.' });
+    }
+    const secretKey = '6LcEaI0rAAAAADfOWNdM_Y5hpoFGIdByHO1MBbMj';
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+    const captchaRes = await fetch(verifyUrl, { method: 'POST' });
+    const captchaData = await captchaRes.json();
+    if (!captchaData.success) {
+      return res.status(400).json({ error: 'reCAPTCHA verification failed.' });
+    }
 
     if (subject !== 'Newsletter') {
       const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
