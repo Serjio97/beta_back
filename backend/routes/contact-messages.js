@@ -73,15 +73,13 @@ router.post('/', async (req, res) => {
       if (!companyEmailPattern.test(email)) {
         return res.status(400).json({ error: 'Please use your company email address.' });
       }
+    } else {
+      // For newsletter, just check for a valid email format
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+      }
     }
-
-
-    // Validate email pattern
-    const companyEmailPattern = /^[a-zA-Z0-9._%+-]+@(?!gmail\.com$|yahoo\.com$|hotmail\.com$|outlook\.com$|icloud\.com$)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!companyEmailPattern.test(email)) {
-      return res.status(400).json({ error: 'Please use your company email address.' });
-    }
-
     // Prepare timestamps
     const id = uuidv4();
     const now = new Date();
